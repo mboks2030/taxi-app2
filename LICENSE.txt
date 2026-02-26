@@ -1,0 +1,4 @@
+Taxi Business Management System
+Copyright (c) 2026
+
+All rights reserved.

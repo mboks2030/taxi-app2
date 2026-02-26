@@ -1,0 +1,17 @@
+   Capacitor Doctor   
+
+Latest Dependencies:
+
+  @capacitor/cli: 8.0.1
+  @capacitor/core: 8.0.1
+  @capacitor/android: 8.0.1
+  @capacitor/ios: 8.0.1
+
+Installed Dependencies:
+
+  @capacitor/ios: not installed
+  @capacitor/cli: 8.0.1
+  @capacitor/core: 8.0.1
+  @capacitor/android: 8.0.1
+
+[success] Android looking great! ????
