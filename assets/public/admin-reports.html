@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Taxi Business Management System</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; background: #f4f6f8; }
+    h2, h3 { margin-top: 0; }
+    .container { max-width: 1200px; margin: auto; padding: 20px; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    label { display: block; margin-top: 10px; font-weight: 600; }
+    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    button { margin-top: 15px; background: #1f3a5f; color: #fff; border: none; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #162c47; }
+    .message { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
+    .success { background: #e6f7ec; color: #0f5132; }
+    .error { background: #fdecea; color: #842029; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #f0f2f5; }
+    @media (min-width: 768px) { .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+    /* ========== ADDED STYLES ========== */
+    .nav-tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+    .nav-tab { padding: 10px 20px; cursor: pointer; border-bottom: 3px solid transparent; }
+    .nav-tab.active { border-bottom-color: #1f3a5f; font-weight: 600; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+    .print-btn { background: #4a6fa5; margin-bottom: 15px; }
+    .print-btn:hover { background: #3a5a8c; }
+    .info-text { font-size: 14px; color: #666; margin-top: 5px; }
+    @media print { .no-print { display: none !important; } body { background: #fff; padding: 20px; } .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; } }
+    /* ========== END ADDED STYLES ========== */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🚖 Taxi Business Management System</h2>
+
+    <!-- ========== ADDED NAVIGATION TABS ========== -->
+    <div class="nav-tabs no-print">
+      <div class="nav-tab active" onclick="switchView(event,'daily')">Daily Entry</div>
+      <div class="nav-tab" onclick="switchView(event,'weekly')">Weekly Reports</div>
+      <div class="nav-tab" onclick="switchView(event,'monthly')">Monthly Reports</div>
+    </div>
+
+    <!-- DAILY ENTRY VIEW (DEFAULT) -->
+    <div id="daily-view" class="view-section active">
+      <!-- DAILY INCOME -->
+      <div class="card">
+        <h3>1) Daily Income</h3>
+        <label>Date</label>
+        <input id="incomeDate" type="date">
+        <label>Car</label>
+        <select id="incomeCar">
+          <option value="SG24ZSN">Taxi A </option>
+        </select>
+        <label>Payment Method</label>
+        <select id="paymentMethod">
+          <option value="">Select method</option>
+          <option>Cash</option>
+          <option>Card</option>
+          <option>Credits</option>
+          <option>GCC Account</option>
+          <option>Non-GCC Account</option>
+        </select>
+        <label>Income (£)</label>
+        <input id="incomeAmount" type="number">
+        <button onclick="addDailyIncome()">Add Income</button>
+        <div id="incomeMsg" class="message"></div>
+      </div>
+
+      <!-- DAILY FUEL -->
+      <div class="card">
+        <h3>2) Daily Fuel</h3>
+        <label>Date</label>
+        <input id="fuelDate" type="date">
+        <label>Car</label>
+        <select id="fuelCar">
+          <option value="SG24ZSN">Taxi A</option>
+        </select>
+        <label>Fuel Cost (£)</label>
+        <input id="fuelAmount" type="number">
+        <button onclick="addDailyFuel()">Add Fuel</button>
+        <div id="fuelMsg" class="message"></div>
+      </div>
+
+      <!-- ========== ADDED WEEKLY RENTAL INCOME ========== -->
+      <div class="card">
+        <h3>3) Weekly Rental Income (Taxi B & C Only)</h3>
+
+        <label>Week</label>
+        <input id="rentalWeek" type="week">
+
+        <label>Car</label>
+        <select id="rentalCar">
+          <option value="NU75DXB">Taxi B (Rented)</option>
+          <option value="LL68RRX">Taxi C (Rented)</option>
+        </select>
+
+        <label>Rental Amount (£)</label>
+        <input id="rentalAmount" type="number">
+
+        <p class="info-text">Rental income is automatically included in monthly reports</p>
+
+        <button onclick="addWeeklyRental()">Add Rental Income</button>
+        <div id="rentalMsg" class="message"></div>
+      </div>
+
+      <!-- MONTHLY EXPENSES -->
+      <div class="card">
+        <h3>4) Monthly Expenses</h3>
+        <label>Month</label>
+        <input id="expenseMonth" type="month">
+        <label>Car</label>
+        <select id="expenseCar">
+          <option value="SG24ZSN">Taxi A</option>
+          <option value="NU75DXB">Taxi B</option>
+          <option value="LL68RRX">Taxi C</option>
+          <option value="ALL">All Taxis (Fleet Insurance)</option>
+        </select>
+        <label>Expense Type</label>
+        <select id="expenseType">
+          <option>Fleet Insurance</option>
+          <option>HP Finance</option>
+          <option>Radio PDA</option>
+          <option>Road Tax</option>
+          <option>Mobile</option>
+          <option>MOT</option>
+          <option>Car Maintenance</option>
+        </select>
+        <label>Amount (£)</label>
+        <input id="expenseAmount" type="number">
+        <button onclick="addMonthlyExpense()">Add Monthly Expense</button>
+        <div id="monthlyMsg" class="message"></div>
+      </div>
+
+      <!-- ANNUAL EXPENSES -->
+      <div class="card">
+        <h3>5) Annual Expenses (Taxi A Only)</h3>
+        <label for="annualYear">Year</label>
+        <!-- START ADDITION: Replacing jQuery UI year picker with a simple numeric input to avoid external deps while keeping behavior isolated -->
+        <input id="annualYear" type="number" min="2000" max="9999" placeholder="YYYY">
+        <!-- END ADDITION -->
+        <label>Expense Type</label>
+        <select id="annualType">
+          <option>Annual Inspection</option>
+          <option>Plate Renewal</option>
+        </select>
+        <label>Amount (£)</label>
+        <input id="annualAmount" type="number">
+        <button onclick="addAnnualExpense()">Add Annual Expense</button>
+        <div id="annualMsg" class="message"></div>
+      </div>
+    </div>
+
+    <div id="weekly-view" class="view-section">
+      <div class="card">
+        <h3>Weekly Rental Income Report</h3>
+        <label>Select Week</label>
+        <input id="weeklyReportWeek" type="week">
+        <button onclick="generateWeeklyReport()" class="no-print">Generate Report</button>
+        <button onclick="window.print()" class="print-btn no-print">Print/Export PDF</button>
+        <div id="weeklyReportResults">
+          <p>Select a week and click "Generate Report" to view rental income details.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ADDED MONTHLY REPORT VIEW ========== -->
+    <div id="monthly-view" class="view-section">
+      <div class="card">
+        <h3>Monthly Profit Report</h3>
+        <label>Select Month</label>
+        <input id="monthlyReportMonth" type="month">
+        <button onclick="generateMonthlyReport()" class="no-print">Generate Report</button>
+        <button onclick="window.print()" class="print-btn no-print">Print/Export PDF</button>
+        <div id="monthlyReportResults">
+          <table>
+            <tr>
+              <th>Taxi</th>
+              <th>Income (£)</th>
+              <th>Fuel (£)</th>
+              <th>Other Expenses (£)</th>
+              <th>Profit (£)</th>
+            </tr>
+            <tr>
+              <td>Taxi A</td>
+              <td id="reportIncA">0</td>
+              <td id="reportFuelA">0</td>
+              <td id="reportExpA">0</td>
+              <td id="reportProfA">0</td>
+            </tr>
+            <tr>
+              <td>Taxi B</td>
+              <td id="reportIncB">0</td>
+              <td id="reportFuelB">0</td>
+              <td id="reportExpB">0</td>
+              <td id="reportProfB">0</td>
+            </tr>
+            <tr>
+              <td>Taxi C</td>
+              <td id="reportIncC">0</td>
+              <td id="reportFuelC">0</td>
+              <td id="reportExpC">0</td>
+              <td id="reportProfC">0</td>
+            </tr>
+          </table>
+          <h3>Total Business Profit: £<span id="reportTotalProfit">0</span></h3>
+          <div id="monthlyReportDetails"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // START ADDITION
+    // Storage keys (NEW, do not overwrite existing keys in the main app)
+    const LS_KEYS = {
+      dailyIncome: 'addon_dailyIncome',
+      dailyFuel: 'addon_dailyFuel',
+      monthlyExpenses: 'addon_monthlyExpenses',
+      annualExpenses: 'addon_annualExpenses',
+      weeklyRentals: 'addon_weeklyRentals'
+    };
+
+    // Data stores (kept isolated in this module)
+    let dailyIncome = [];
+    let dailyFuel = [];
+    let monthlyExpenses = [];
+    let annualExpenses = [];
+    let weeklyRentals = [];
+
+    function showMessage(id, msg, type) {
+      const el = document.getElementById(id);
+      el.className = 'message ' + type;
+      el.innerText = msg;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    }
+
+    function addDailyIncome() {
+      const date = incomeDate.value;
+      const car = incomeCar.value;
+      const amount = Number(incomeAmount.value);
+      const method = paymentMethod.value;
+      if (!date || !method || amount <= 0 || isNaN(amount)) {
+        showMessage('incomeMsg', 'Please enter valid income details.', 'error');
+        return;
+      }
+      // Do not mutate existing arrays in other modules; push into isolated store
+      dailyIncome = dailyIncome.concat([{ date, car, amount, method }]);
+      showMessage('incomeMsg', 'Daily income recorded successfully.', 'success');
+      incomeAmount.value = '';
+      persistAll();
+    }
+
+    function addDailyFuel() {
+      const date = fuelDate.value;
+      const car = fuelCar.value;
+      const amount = Number(fuelAmount.value);
+      if (!date || amount <= 0 || isNaN(amount)) {
+        showMessage('fuelMsg', 'Please enter valid fuel details.', 'error');
+        return;
+      }
+      dailyFuel = dailyFuel.concat([{ date, car, amount }]);
+      showMessage('fuelMsg', 'Fuel expense recorded.', 'success');
+      fuelAmount.value = '';
+      persistAll();
+    }
+
+    function addMonthlyExpense() {
+      const month = expenseMonth.value;
+      const car = expenseCar.value;
+      const type = expenseType.value;
+      const amount = Number(expenseAmount.value);
+      if (!month || amount <= 0 || isNaN(amount)) {
+        showMessage('monthlyMsg', 'Please enter valid monthly expense.', 'error');
+        return;
+      }
+      monthlyExpenses = monthlyExpenses.concat([{ month, car, type, amount }]);
+      showMessage('monthlyMsg', 'Monthly expense recorded.', 'success');
+      expenseAmount.value = '';
+      persistAll();
+    }
+
+    function addAnnualExpense() {
+      const year = Number(document.getElementById('annualYear').value);
+      const type = annualType.value;
+      const amount = Number(annualAmount.value);
+      if (!year || amount <= 0 || isNaN(amount)) {
+        showMessage('annualMsg', 'Please enter valid annual expense.', 'error');
+        return;
+      }
+      annualExpenses = annualExpenses.concat([{ year, type, amount }]);
+      showMessage('annualMsg', 'Annual expense recorded.', 'success');
+      annualAmount.value = '';
+      persistAll();
+    }
+
+    // ISO week helper
+    function getWeekNumber(date) {
+      const d = new Date(date);
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+      const week1 = new Date(d.getFullYear(), 0, 4);
+      return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+
+    // START ADDITION
+    // Derive ISO week string (YYYY-Www) for a given date, consistent with getWeekNumber
+    function getISOWeekYear(date) {
+      const d = new Date(date);
+      d.setHours(0,0,0,0);
+      // shift to Thursday of this ISO week; that year's year is the ISO week-year
+      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+      return d.getFullYear();
+    }
+    function getISOWeekString(date) {
+      const d = new Date(date);
+      const week = getWeekNumber(d);
+      const isoYear = getISOWeekYear(d);
+      return `${isoYear}-W${String(week).padStart(2,'0')}`;
+    }
+    // END ADDITION
+
+    // Weekly rental income
+    function addWeeklyRental() {
+      const week = rentalWeek.value; // YYYY-Www
+      const car = rentalCar.value;   // NU75DXB | LL68RRX
+      const amount = Number(rentalAmount.value);
+      if (!week || amount <= 0 || isNaN(amount)) {
+        showMessage('rentalMsg', 'Please enter valid rental details.', 'error');
+        return;
+      }
+      weeklyRentals = weeklyRentals.concat([{ week, car, amount }]);
+      showMessage('rentalMsg', 'Weekly rental income recorded.', 'success');
+      rentalAmount.value = '';
+      persistAll();
+    }
+
+    // View switching (isolated; does not touch existing app)
+    function switchView(ev, view) {
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      const target = document.getElementById(`${view}-view`);
+      if (target) target.classList.add('active');
+      if (ev && ev.currentTarget) ev.currentTarget.classList.add('active');
+
+      const today = new Date();
+      if (view === 'weekly') {
+        const year = today.getFullYear();
+        const week = getWeekNumber(today);
+        document.getElementById('weeklyReportWeek').value = `${year}-W${String(week).padStart(2,'0')}`;
+      } else if (view === 'monthly') {
+        document.getElementById('monthlyReportMonth').value = today.toISOString().substring(0,7);
+      }
+    }
+
+    // Weekly report
+    function generateWeeklyReport() {
+      const week = document.getElementById('weeklyReportWeek').value;
+      if (!week) {
+        showMessage('rentalMsg', 'Please select a week first.', 'error');
+        return;
+      }
+      let reportHTML = `<h4>Weekly Rental Income for ${week}</h4>`;
+      let total = 0;
+      const filtered = weeklyRentals.filter(r => r.week === week);
+      if (filtered.length === 0) {
+        reportHTML += `<p>No rental income recorded for this week.</p>`;
+      } else {
+        reportHTML += `<table><tr><th>Taxi</th><th>Rental Amount (£)</th></tr>`;
+        filtered.forEach(r => {
+          reportHTML += `<tr><td>${r.car === 'NU75DXB' ? 'Taxi B' : 'Taxi C'}</td><td>${r.amount.toFixed(2)}</td></tr>`;
+          total += r.amount;
+        });
+        reportHTML += `<tr><th>Total Rental Income</th><th>£${total.toFixed(2)}</th></tr></table>`;
+      }
+
+      // START ADDITION: Weekly total for Taxi A (daily income summed for the selected ISO week)
+      const taxiAWeekIncome = (dailyIncome || [])
+        .filter(e => e && e.car === 'SG24ZSN' && e.date)
+        .filter(e => getISOWeekString(e.date) === week)
+        .reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      reportHTML += `<h4>Taxi A Daily Income for ${week}</h4>` +
+        `<table><tr><th>Taxi</th><th>Total Daily Income (£)</th></tr>` +
+        `<tr><td>Taxi A</td><td>${taxiAWeekIncome.toFixed(2)}</td></tr></table>`;
+      // END ADDITION
+
+      document.getElementById('weeklyReportResults').innerHTML = reportHTML;
+    }
+
+    // Monthly report
+    function generateMonthlyReport() {
+      const month = document.getElementById('monthlyReportMonth').value; // YYYY-MM
+      if (!month) {
+        showMessage('monthlyMsg', 'Please select a month first.', 'error');
+        return;
+      }
+      const year = Number(month.split('-')[0]);
+      let income = { SG24ZSN:0, NU75DXB:0, LL68RRX:0 };
+      let fuel = { SG24ZSN:0, NU75DXB:0, LL68RRX:0 };
+      let expenses = { SG24ZSN:0, NU75DXB:0, LL68RRX:0 };
+      let rentalIncome = { NU75DXB:0, LL68RRX:0 };
+
+      dailyIncome.forEach(e => { if (e.date && e.date.startsWith(month)) income[e.car] += e.amount; });
+      dailyFuel.forEach(e => { if (e.date && e.date.startsWith(month)) fuel[e.car] += e.amount; });
+
+      monthlyExpenses.forEach(e => {
+        if (e.month === month) {
+          if (e.car === 'ALL') {
+            const shared = e.amount / 3; // even split across all taxis
+            expenses.SG24ZSN += shared;
+            expenses.NU75DXB += shared;
+            expenses.LL68RRX += shared;
+          } else {
+            expenses[e.car] += e.amount;
+          }
+        }
+      });
+
+      annualExpenses.forEach(e => { if (e.year === year) expenses.SG24ZSN += e.amount; });
+
+      weeklyRentals.forEach(e => {
+        const rentalMonth = e.week.substring(0,7); // YYYY-MM from YYYY-Www
+        if (rentalMonth === month) {
+          rentalIncome[e.car] = (rentalIncome[e.car] || 0) + e.amount;
+          income[e.car] += e.amount; // business income for B & C
+        }
+      });
+
+      function set(car, incId, fuId, exId, prId) {
+        const p = income[car] - fuel[car] - expenses[car];
+        document.getElementById(incId).innerText = income[car].toFixed(2);
+        document.getElementById(fuId).innerText = fuel[car].toFixed(2);
+        document.getElementById(exId).innerText = expenses[car].toFixed(2);
+        document.getElementById(prId).innerText = p.toFixed(2);
+        return p;
+      }
+
+      const totalProfit =
+        set('SG24ZSN','reportIncA','reportFuelA','reportExpA','reportProfA') +
+        set('NU75DXB','reportIncB','reportFuelB','reportExpB','reportProfB') +
+        set('LL68RRX','reportIncC','reportFuelC','reportExpC','reportProfC');
+      document.getElementById('reportTotalProfit').innerText = totalProfit.toFixed(2);
+
+      let detailsHTML = `<h4>Detailed Breakdown for ${month}</h4>`;
+      if ((rentalIncome.NU75DXB||0) > 0 || (rentalIncome.LL68RRX||0) > 0) {
+        detailsHTML += `<h5>Rental Income:</h5><ul>` +
+          `<li>Taxi B: £${(rentalIncome.NU75DXB||0).toFixed(2)}</li>` +
+          `<li>Taxi C: £${(rentalIncome.LL68RRX||0).toFixed(2)}</li>` +
+        `</ul>`;
+      }
+      const sharedExpenses = monthlyExpenses.filter(e => e.month === month && e.car === 'ALL');
+      if (sharedExpenses.length > 0) {
+        detailsHTML += `<h5>Shared Expenses:</h5><ul>`;
+        sharedExpenses.forEach(exp => {
+          detailsHTML += `<li>${exp.type}: £${Number(exp.amount).toFixed(2)} (divided equally among all taxis)</li>`;
+        });
+        detailsHTML += `</ul>`;
+      }
+      document.getElementById('monthlyReportDetails').innerHTML = detailsHTML;
+    }
+
+    function persistAll() {
+      localStorage.setItem(LS_KEYS.dailyIncome, JSON.stringify(dailyIncome));
+      localStorage.setItem(LS_KEYS.dailyFuel, JSON.stringify(dailyFuel));
+      localStorage.setItem(LS_KEYS.monthlyExpenses, JSON.stringify(monthlyExpenses));
+      localStorage.setItem(LS_KEYS.annualExpenses, JSON.stringify(annualExpenses));
+      localStorage.setItem(LS_KEYS.weeklyRentals, JSON.stringify(weeklyRentals));
+    }
+
+    function restoreAll() {
+      try {
+        dailyIncome = JSON.parse(localStorage.getItem(LS_KEYS.dailyIncome) || '[]');
+        dailyFuel = JSON.parse(localStorage.getItem(LS_KEYS.dailyFuel) || '[]');
+        monthlyExpenses = JSON.parse(localStorage.getItem(LS_KEYS.monthlyExpenses) || '[]');
+        annualExpenses = JSON.parse(localStorage.getItem(LS_KEYS.annualExpenses) || '[]');
+        weeklyRentals = JSON.parse(localStorage.getItem(LS_KEYS.weeklyRentals) || '[]');
+      } catch (e) {
+        // keep isolation; if corrupted, reset only this module's stores
+        dailyIncome = []; dailyFuel = []; monthlyExpenses = []; annualExpenses = []; weeklyRentals = [];
+      }
+    }
+
+    window.onload = function() {
+      restoreAll();
+      const today = new Date();
+      const currentMonth = today.toISOString().substring(0,7);
+      const currentDate = today.toISOString().substring(0,10);
+      document.getElementById('incomeDate').value = currentDate;
+      document.getElementById('fuelDate').value = currentDate;
+      document.getElementById('expenseMonth').value = currentMonth;
+      document.getElementById('monthlyReportMonth').value = currentMonth;
+      document.getElementById('annualYear').value = today.getFullYear();
+      const year = today.getFullYear();
+      const week = getWeekNumber(today);
+      document.getElementById('rentalWeek').value = `${year}-W${String(week).padStart(2,'0')}`;
+      setInterval(persistAll, 10000);
+    }
+    // END ADDITION
+  </script>
+</body>
+</html>
