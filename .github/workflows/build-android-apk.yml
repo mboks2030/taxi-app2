@@ -36,17 +36,14 @@ jobs:
 
       # ── 4. Android SDK ────────────────────────────────────────────────
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        shell: bash
-        run: |
-          # Use yes to accept licenses non-interactively while safely ignoring SIGPIPE from yes
-          yes 2>/dev/null | sdkmanager --licenses || [ ${PIPESTATUS[1]} -eq 0 ]
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Install Android platform and build-tools
-        run: |
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
 
       # ── 5. Install npm dependencies ───────────────────────────────────
       - name: Install dependencies
